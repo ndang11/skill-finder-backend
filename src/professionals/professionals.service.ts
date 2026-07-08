@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Professional } from './entities/professional.entity';
-import { SearchProfessionalDto } from './dto/search-professional.dto';
-import { UpdateProfessionalDto } from './dto/update-professional.dto';
+import { Professional } from './entities/professional.entity.js';
+import { SearchProfessionalDto } from './dto/search-professional.dto.js';
+import { UpdateProfessionalDto } from './dto/update-professional.dto.js';
 
 @Injectable()
 export class ProfessionalsService {

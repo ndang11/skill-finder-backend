@@ -9,14 +9,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { AddCommentDto } from './dto/add-comment.dto';
-import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { GetUser } from '../common/decorators/get-user.decorator';
+import { PostsService } from './posts.service.js';
+import { CreatePostDto } from './dto/create-post.dto.js';
+import { UpdatePostDto } from './dto/update-post.dto.js';
+import { AddCommentDto } from './dto/add-comment.dto.js';
+import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { GetUser } from '../common/decorators/get-user.decorator.js';
 
 @Controller('posts')
 export class PostsController {

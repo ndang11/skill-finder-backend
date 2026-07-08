@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
+import { CreateReviewDto } from './dto/create-review.dto.js';
 
 export interface Review {
   id: string;

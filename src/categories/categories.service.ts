@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { Category } from './entities/category.entity';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { Category } from './entities/category.entity.js';
+import { CreateCategoryDto } from './dto/create-category.dto.js';
 
 @Injectable()
 export class CategoriesService {

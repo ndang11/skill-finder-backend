@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard';
-import { GetUser } from '../common/decorators/get-user.decorator';
+import { UsersService } from './users.service.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
+import { GetUser } from '../common/decorators/get-user.decorator.js';
 
 @Controller('users')
 export class UsersController {

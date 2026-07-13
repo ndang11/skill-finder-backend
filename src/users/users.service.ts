@@ -1,39 +1,53 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto.js';
-import { UpdateProfileDto } from './dto/update-profile.dto.js';
-import { User } from './entities/user.entity.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { CreateUserDto } from './dto/create-user.dto.js';
+import type { UpdateProfileDto } from './dto/update-profile.dto.js';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = []; // In-memory mock database store
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser: User = {
-      ...createUserDto,
-      isVerifiedProfessional: false,
-      createdAt: new Date(),
-    };
-    this.users.push(newUser);
-    return newUser;
+  /**
+   * Sync a user from Supabase Auth into the local database.
+   * Called after sign-up (webhook or frontend call).
+   */
+  async create(createUserDto: CreateUserDto) {
+    return this.prisma.user.upsert({
+      where: { id: createUserDto.id },
+      update: {
+        email: createUserDto.email,
+        fullname: createUserDto.fullname,
+        username: createUserDto.username,
+        phoneNumber: createUserDto.phoneNumber,
+        avatarUrl: createUserDto.avatarUrl,
+        role: createUserDto.role,
+      },
+      create: {
+        id: createUserDto.id,
+        email: createUserDto.email ?? '',
+        fullname: createUserDto.fullname,
+        username: createUserDto.username,
+        phoneNumber: createUserDto.phoneNumber,
+        avatarUrl: createUserDto.avatarUrl,
+        role: createUserDto.role,
+      },
+    });
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = this.users.find((u) => u.id === id);
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
+  async findOne(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { professionalProfile: true },
+    });
+    if (!user) throw new NotFoundException(`User not found`);
     return user;
   }
 
-  async update(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
-    const user = await this.findOne(id);
-    Object.assign(user, updateProfileDto);
-    return user;
-  }
-
-  async verifyProfessional(id: string): Promise<User> {
-    const user = await this.findOne(id);
-    user.isVerifiedProfessional = true;
-    return user;
+  async update(id: string, updateProfileDto: UpdateProfileDto) {
+    await this.findOne(id); // ensures user exists
+    return this.prisma.user.update({
+      where: { id },
+      data: updateProfileDto,
+    });
   }
 }

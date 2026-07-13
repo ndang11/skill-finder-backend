@@ -1,40 +1,33 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { Category } from './entities/category.entity.js';
-import { CreateCategoryDto } from './dto/create-category.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { CreateCategoryDto } from './dto/create-category.dto.js';
 
 @Injectable()
 export class CategoriesService {
-  private categories: Category[] = [
-    { id: 'cat-1', name: 'Solar Installer', slug: 'solar-installer' },
-    { id: 'cat-2', name: 'Hairdresser', slug: 'hairdresser' },
-    { id: 'cat-3', name: 'Mechanic', slug: 'mechanic' },
-    {
-      id: 'cat-4',
-      name: 'Tailor/Fashion Designer',
-      slug: 'tailor-fashion-designer',
-    },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const existing = this.categories.find(
-      (c) => c.slug === createCategoryDto.slug.toLowerCase(),
-    );
+  async create(createCategoryDto: CreateCategoryDto) {
+    const existing = await this.prisma.category.findUnique({
+      where: { slug: createCategoryDto.slug.toLowerCase() },
+    });
+
     if (existing) {
       throw new ConflictException(
-        `Category with slug ${createCategoryDto.slug} already exists`,
+        `Category with slug "${createCategoryDto.slug}" already exists`,
       );
     }
 
-    const newCategory: Category = {
-      id: `cat-${Date.now()}`,
-      ...createCategoryDto,
-      slug: createCategoryDto.slug.toLowerCase(),
-    };
-    this.categories.push(newCategory);
-    return newCategory;
+    return this.prisma.category.create({
+      data: {
+        name: createCategoryDto.name,
+        slug: createCategoryDto.slug.toLowerCase(),
+      },
+    });
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.categories;
+  async findAll() {
+    return this.prisma.category.findMany({
+      orderBy: { name: 'asc' },
+    });
   }
 }

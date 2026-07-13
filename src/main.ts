@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 
@@ -8,6 +9,15 @@ async function bootstrap() {
 
   // Register the global exception filter
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Validate and transform all incoming request bodies automatically
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,       // strip unknown properties
+      forbidNonWhitelisted: true, // throw on unknown properties
+      transform: true,       // auto-transform payloads to DTO class instances
+    }),
+  );
 
   // Allow the frontend (Supabase-hosted or local Next.js) to reach the API
   app.enableCors({

@@ -1,5 +1,9 @@
+import { IsString, IsUUID } from 'class-validator';
+
 export class AddCommentDto {
-  authorName: string;
-  authorRole: 'customer' | 'professional' | 'admin';
+  @IsUUID()
+  authorId: string;
+
+  @IsString()
   content: string;
 }

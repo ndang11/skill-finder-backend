@@ -1,9 +1,12 @@
+import { IsString, IsOptional } from 'class-validator';
+
 export class CreatePostDto {
-  authorName: string;
-  authorAvatar?: string;
-  authorCategory: string;
-  authorLocation: string;
-  authorPhone: string;
+  @IsString()
+  title: string;
+
+  @IsString()
   content: string;
-  imageUrl?: string;
+
+  @IsString()
+  authorCategory: string;
 }

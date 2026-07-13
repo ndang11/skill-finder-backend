@@ -1,7 +1,16 @@
+import { IsString, IsOptional, IsArray } from 'class-validator';
+
 export class UpdateProfessionalDto {
-  category?: string;
+  @IsString()
+  @IsOptional()
+  categoryId?: string;
+
+  @IsString()
+  @IsOptional()
   location?: string;
-  bio?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   skills?: string[];
-  whatsappNumber?: string;
 }

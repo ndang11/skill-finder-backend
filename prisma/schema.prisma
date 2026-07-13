@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -10,17 +9,92 @@ generator client {
 enum Role {
   customer
   professional
+  admin
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  username  String   @unique
-  fullname  String
-  password  String
-  role      Role     @default(customer)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String         @id
+  email                  String         @unique
+  username               String         @unique
+  fullname               String
+  phoneNumber            String?
+  avatarUrl              String?
+  role                   Role           @default(customer)
+  isVerifiedProfessional Boolean        @default(false)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  // Relations
+  professionalProfile    Professional?
+  posts                  Post[]
+  comments               Comment[]
+  reviewsWritten         Review[]       @relation("CustomerReviews")
 
   @@map("users")
+}
+
+model Category {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  slug          String         @unique
+  professionals Professional[]
+
+  @@map("categories")
+}
+
+model Professional {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  location      String
+  skills        String[]
+  completedJobs Int      @default(0)
+
+  // Relations
+  reviews       Review[] @relation("ProfessionalReviews")
+
+  @@map("professionals")
+}
+
+model Post {
+  id             String    @id @default(uuid())
+  title          String
+  content        String
+  authorId       String
+  author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorCategory String
+  likes          String[]  // Array of User IDs who liked the post
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  comments       Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@map("comments")
+}
+
+model Review {
+  id             String       @id @default(uuid())
+  professionalId String
+  professional   Professional @relation("ProfessionalReviews", fields: [professionalId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       User         @relation("CustomerReviews", fields: [customerId], references: [id], onDelete: Cascade)
+  rating         Float
+  comment        String?
+  createdAt      DateTime     @default(now())
+
+  @@map("reviews")
 }

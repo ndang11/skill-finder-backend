@@ -8,7 +8,11 @@ export class CategoriesService {
     { id: 'cat-1', name: 'Solar Installer', slug: 'solar-installer' },
     { id: 'cat-2', name: 'Hairdresser', slug: 'hairdresser' },
     { id: 'cat-3', name: 'Mechanic', slug: 'mechanic' },
-    { id: 'cat-4', name: 'Tailor/Fashion Designer', slug: 'tailor-fashion-designer' },
+    {
+      id: 'cat-4',
+      name: 'Tailor/Fashion Designer',
+      slug: 'tailor-fashion-designer',
+    },
   ];
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
@@ -16,7 +20,9 @@ export class CategoriesService {
       (c) => c.slug === createCategoryDto.slug.toLowerCase(),
     );
     if (existing) {
-      throw new ConflictException(`Category with slug ${createCategoryDto.slug} already exists`);
+      throw new ConflictException(
+        `Category with slug ${createCategoryDto.slug} already exists`,
+      );
     }
 
     const newCategory: Category = {

@@ -1,16 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import type { OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 
-
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  // Connect to PostgreSQL when the application starts
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  constructor(configService: ConfigService) {
+    super({
+      datasourceUrl: configService.getOrThrow<string>('DATABASE_URL'),
+    });
+  }
+
   async onModuleInit() {
     await this.$connect();
   }
 
-  // Gracefully disconnect from PostgreSQL when the application shuts down
   async onModuleDestroy() {
     await this.$disconnect();
   }

@@ -23,7 +23,10 @@ export class UsersController {
 
   @UseGuards(SupabaseAuthGuard)
   @Patch('me')
-  updateProfile(@GetUser('id') userId: string, @Body() updateProfileDto: UpdateProfileDto) {
+  updateProfile(
+    @GetUser('id') userId: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
     return this.usersService.update(userId, updateProfileDto);
   }
 }

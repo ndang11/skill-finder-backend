@@ -64,7 +64,10 @@ export class PostsController {
   // Add a comment to a post (any authenticated user)
   @UseGuards(SupabaseAuthGuard)
   @Post(':id/comments')
-  addComment(@Param('id') postId: string, @Body() addCommentDto: AddCommentDto) {
+  addComment(
+    @Param('id') postId: string,
+    @Body() addCommentDto: AddCommentDto,
+  ) {
     return this.postsService.addComment(postId, addCommentDto);
   }
 

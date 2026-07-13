@@ -14,7 +14,10 @@ export class ReviewsController {
   @UseGuards(SupabaseAuthGuard, RolesGuard)
   @Roles('customer')
   @Post()
-  create(@GetUser('id') customerId: string, @Body() createReviewDto: CreateReviewDto) {
+  create(
+    @GetUser('id') customerId: string,
+    @Body() createReviewDto: CreateReviewDto,
+  ) {
     return this.reviewsService.create(customerId, createReviewDto);
   }
 

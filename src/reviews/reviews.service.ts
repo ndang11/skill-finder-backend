@@ -14,7 +14,10 @@ export interface Review {
 export class ReviewsService {
   private reviews: Review[] = []; // In-memory store
 
-  async create(customerId: string, createReviewDto: CreateReviewDto): Promise<Review> {
+  async create(
+    customerId: string,
+    createReviewDto: CreateReviewDto,
+  ): Promise<Review> {
     const newReview: Review = {
       id: `review-${Date.now()}`,
       customerId,
@@ -28,7 +31,10 @@ export class ReviewsService {
   async findByProfessional(professionalId: string): Promise<Review[]> {
     return this.reviews
       .filter((r) => r.professionalId === professionalId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
   }
 
   async getAverageRating(professionalId: string): Promise<number> {

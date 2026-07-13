@@ -1,4 +1,12 @@
-import { Controller, Get, Body, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Query,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ProfessionalsService } from './professionals.service.js';
 import { SearchProfessionalDto } from './dto/search-professional.dto.js';
 import { UpdateProfessionalDto } from './dto/update-professional.dto.js';
@@ -15,8 +23,17 @@ export class ProfessionalsController {
   }
 
   @UseGuards(SupabaseAuthGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.professionalsService.findOne(id);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
   @Patch('profile')
-  update(@GetUser('id') userId: string, @Body() updateDto: UpdateProfessionalDto) {
+  update(
+    @GetUser('id') userId: string,
+    @Body() updateDto: UpdateProfessionalDto,
+  ) {
     return this.professionalsService.update(userId, updateDto);
   }
 }

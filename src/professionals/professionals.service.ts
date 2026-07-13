@@ -37,7 +37,9 @@ export class ProfessionalsService {
     }
 
     if (searchDto.minRating) {
-      result = result.filter((p) => p.averageRating >= Number(searchDto.minRating));
+      result = result.filter(
+        (p) => p.averageRating >= Number(searchDto.minRating),
+      );
     }
 
     return result;
@@ -51,7 +53,10 @@ export class ProfessionalsService {
     return prof;
   }
 
-  async update(userId: string, updateDto: UpdateProfessionalDto): Promise<Professional> {
+  async update(
+    userId: string,
+    updateDto: UpdateProfessionalDto,
+  ): Promise<Professional> {
     let prof = this.professionals.find((p) => p.userId === userId);
     if (!prof) {
       prof = await this.create(userId);

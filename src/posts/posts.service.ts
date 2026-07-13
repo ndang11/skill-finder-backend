@@ -24,7 +24,8 @@ export class PostsService {
 
   async findAll(category?: string): Promise<Post[]> {
     const sorted = [...this.posts].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
     if (category) {
       return sorted.filter(
@@ -37,10 +38,17 @@ export class PostsService {
   async findByAuthor(authorId: string): Promise<Post[]> {
     return this.posts
       .filter((p) => p.authorId === authorId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
   }
 
-  async update(postId: string, authorId: string, updatePostDto: UpdatePostDto): Promise<Post> {
+  async update(
+    postId: string,
+    authorId: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<Post> {
     const post = this.findPostOrFail(postId);
     if (post.authorId !== authorId) {
       throw new NotFoundException('Post not found or access denied');
@@ -60,7 +68,10 @@ export class PostsService {
     return post;
   }
 
-  async addComment(postId: string, addCommentDto: AddCommentDto): Promise<Comment> {
+  async addComment(
+    postId: string,
+    addCommentDto: AddCommentDto,
+  ): Promise<Comment> {
     const post = this.findPostOrFail(postId);
     const newComment: Comment = {
       id: `comment-${Date.now()}`,

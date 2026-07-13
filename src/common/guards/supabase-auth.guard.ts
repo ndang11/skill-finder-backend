@@ -1,28 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import type { CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class SupabaseAuthGuard implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
-    
-    // Placeholder verification logic.
-    // In production, you will decode the Supabase JWT using passport-jwt or supabase-js.
-    if (!authHeader) {
-      return false;
-    }
+export class SupabaseAuthGuard extends AuthGuard('supabase') {
+  private readonly logger = new Logger(SupabaseAuthGuard.name);
 
-    // Example mock user attached to the request for dev scaffolding
-    request.user = {
-      id: 'mock-user-1',
-      email: 'user@example.com',
-      role: 'professional',
-    };
-    
-    return true;
+  override handleRequest<TUser = any>(
+    err: unknown,
+    user: unknown,
+    info: unknown,
+  ): TUser {
+    if (err || !user) {
+      const message =
+        (err as Error | undefined)?.message ||
+        (info as Error | undefined)?.message ||
+        'Invalid or expired token';
+      this.logger.warn(`JWT verification failed: ${message}`);
+      if (err instanceof Error) {
+        throw err;
+      }
+      throw new UnauthorizedException(message);
+    }
+    return user as TUser;
   }
 }

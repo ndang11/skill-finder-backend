@@ -3,7 +3,7 @@ export declare class CreateUserDto {
     fullname: string;
     username: string;
     email?: string;
-    phoneNumber: string;
+    phoneNumber?: string;
     role: 'customer' | 'professional' | 'admin';
     avatarUrl?: string;
 }

@@ -1,7 +1,5 @@
 export declare class UpdateProfessionalDto {
-    category?: string;
+    categoryId?: string;
     location?: string;
-    bio?: string;
     skills?: string[];
-    whatsappNumber?: string;
 }

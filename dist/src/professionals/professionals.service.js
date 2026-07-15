@@ -4,56 +4,103 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Professional } from './entities/professional.entity.js';
-import { SearchProfessionalDto } from './dto/search-professional.dto.js';
-import { UpdateProfessionalDto } from './dto/update-professional.dto.js';
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
 let ProfessionalsService = class ProfessionalsService {
-    professionals = [];
-    async create(userId) {
-        const newProfessional = {
-            id: `prof-${Date.now()}`,
-            userId,
-            category: '',
-            location: '',
-            skills: [],
-            averageRating: 0,
-            completedJobs: 0,
-        };
-        this.professionals.push(newProfessional);
-        return newProfessional;
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(userId, categoryId, location) {
+        return this.prisma.professional.upsert({
+            where: { userId },
+            update: { categoryId, location },
+            create: { userId, categoryId, location, skills: [] },
+            include: { user: true, category: true },
+        });
     }
     async findAll(searchDto) {
-        let result = [...this.professionals];
-        if (searchDto.category) {
-            result = result.filter((p) => p.category.toLowerCase().includes(searchDto.category.toLowerCase()));
-        }
-        if (searchDto.location) {
-            result = result.filter((p) => p.location.toLowerCase().includes(searchDto.location.toLowerCase()));
-        }
-        if (searchDto.minRating) {
-            result = result.filter((p) => p.averageRating >= Number(searchDto.minRating));
-        }
-        return result;
+        return this.prisma.professional.findMany({
+            where: {
+                ...(searchDto.category && {
+                    category: {
+                        slug: { contains: searchDto.category, mode: 'insensitive' },
+                    },
+                }),
+                ...(searchDto.location && {
+                    location: { contains: searchDto.location, mode: 'insensitive' },
+                }),
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullname: true,
+                        username: true,
+                        avatarUrl: true,
+                        isVerifiedProfessional: true,
+                    },
+                },
+                category: true,
+                reviews: {
+                    select: { rating: true },
+                },
+            },
+            orderBy: { completedJobs: 'desc' },
+        });
     }
     async findOne(id) {
-        const prof = this.professionals.find((p) => p.id === id || p.userId === id);
-        if (!prof) {
+        const prof = await this.prisma.professional.findFirst({
+            where: { OR: [{ id }, { userId: id }] },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullname: true,
+                        username: true,
+                        avatarUrl: true,
+                        isVerifiedProfessional: true,
+                    },
+                },
+                category: true,
+                reviews: {
+                    include: {
+                        customer: {
+                            select: { id: true, fullname: true, avatarUrl: true },
+                        },
+                    },
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
+        });
+        if (!prof)
             throw new NotFoundException(`Professional profile not found`);
-        }
         return prof;
     }
     async update(userId, updateDto) {
-        let prof = this.professionals.find((p) => p.userId === userId);
-        if (!prof) {
-            prof = await this.create(userId);
-        }
-        Object.assign(prof, updateDto);
-        return prof;
+        const prof = await this.prisma.professional.findUnique({ where: { userId } });
+        if (!prof)
+            throw new NotFoundException(`Professional profile not found`);
+        return this.prisma.professional.update({
+            where: { userId },
+            data: updateDto,
+            include: { user: true, category: true },
+        });
+    }
+    async getAverageRating(professionalId) {
+        const result = await this.prisma.review.aggregate({
+            where: { professionalId },
+            _avg: { rating: true },
+        });
+        return Math.round((result._avg.rating ?? 0) * 10) / 10;
     }
 };
 ProfessionalsService = __decorate([
-    Injectable()
+    Injectable(),
+    __metadata("design:paramtypes", [PrismaService])
 ], ProfessionalsService);
 export { ProfessionalsService };
 //# sourceMappingURL=professionals.service.js.map

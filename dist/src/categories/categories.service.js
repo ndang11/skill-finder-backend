@@ -4,39 +4,39 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import { Injectable, ConflictException } from '@nestjs/common';
-import { Category } from './entities/category.entity.js';
-import { CreateCategoryDto } from './dto/create-category.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 let CategoriesService = class CategoriesService {
-    categories = [
-        { id: 'cat-1', name: 'Solar Installer', slug: 'solar-installer' },
-        { id: 'cat-2', name: 'Hairdresser', slug: 'hairdresser' },
-        { id: 'cat-3', name: 'Mechanic', slug: 'mechanic' },
-        {
-            id: 'cat-4',
-            name: 'Tailor/Fashion Designer',
-            slug: 'tailor-fashion-designer',
-        },
-    ];
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
     async create(createCategoryDto) {
-        const existing = this.categories.find((c) => c.slug === createCategoryDto.slug.toLowerCase());
+        const existing = await this.prisma.category.findUnique({
+            where: { slug: createCategoryDto.slug.toLowerCase() },
+        });
         if (existing) {
-            throw new ConflictException(`Category with slug ${createCategoryDto.slug} already exists`);
+            throw new ConflictException(`Category with slug "${createCategoryDto.slug}" already exists`);
         }
-        const newCategory = {
-            id: `cat-${Date.now()}`,
-            ...createCategoryDto,
-            slug: createCategoryDto.slug.toLowerCase(),
-        };
-        this.categories.push(newCategory);
-        return newCategory;
+        return this.prisma.category.create({
+            data: {
+                name: createCategoryDto.name,
+                slug: createCategoryDto.slug.toLowerCase(),
+            },
+        });
     }
     async findAll() {
-        return this.categories;
+        return this.prisma.category.findMany({
+            orderBy: { name: 'asc' },
+        });
     }
 };
 CategoriesService = __decorate([
-    Injectable()
+    Injectable(),
+    __metadata("design:paramtypes", [PrismaService])
 ], CategoriesService);
 export { CategoriesService };
 //# sourceMappingURL=categories.service.js.map

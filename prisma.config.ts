@@ -1,15 +1,14 @@
+// prisma.config.ts
+import 'dotenv/config'; // <-- CRITICAL: This loads your DATABASE_URL from your .env file
 import { defineConfig, env } from 'prisma/config';
-import 'dotenv/config';
 
 export default defineConfig({
-  schema: './prisma/schema.prisma',
+  schema: 'prisma/schema.prisma',
   migrations: {
-    path: './prisma/migrations',
+    path: 'prisma/migrations',
     seed: 'npx tsx prisma/seed.ts',
   },
   datasource: {
-    // DIRECT_URL is used for migrations — direct Supabase connection bypassing pooler.
-    // DATABASE_URL (prisma+postgres://) is used at runtime via PrismaPg adapter in PrismaService.
-    url: env('DIRECT_URL'),
+    url: env('DIRECT_URL'), // Needs the direct PostgreSQL connection (port 5432) for migrations
   },
 });

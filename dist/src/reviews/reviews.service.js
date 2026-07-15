@@ -4,35 +4,57 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Injectable } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto.js';
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
 let ReviewsService = class ReviewsService {
-    reviews = [];
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
     async create(customerId, createReviewDto) {
-        const newReview = {
-            id: `review-${Date.now()}`,
-            customerId,
-            ...createReviewDto,
-            createdAt: new Date(),
-        };
-        this.reviews.push(newReview);
-        return newReview;
+        const prof = await this.prisma.professional.findUnique({
+            where: { id: createReviewDto.professionalId },
+        });
+        if (!prof)
+            throw new NotFoundException(`Professional not found`);
+        if (prof.userId === customerId) {
+            throw new ForbiddenException(`You cannot review your own profile`);
+        }
+        return this.prisma.review.create({
+            data: {
+                professionalId: createReviewDto.professionalId,
+                customerId,
+                rating: createReviewDto.rating,
+                comment: createReviewDto.comment,
+            },
+            include: {
+                customer: { select: { id: true, fullname: true, avatarUrl: true } },
+            },
+        });
     }
     async findByProfessional(professionalId) {
-        return this.reviews
-            .filter((r) => r.professionalId === professionalId)
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return this.prisma.review.findMany({
+            where: { professionalId },
+            include: {
+                customer: { select: { id: true, fullname: true, avatarUrl: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
     }
     async getAverageRating(professionalId) {
-        const reviews = await this.findByProfessional(professionalId);
-        if (reviews.length === 0)
-            return 0;
-        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-        return Math.round((total / reviews.length) * 10) / 10;
+        const result = await this.prisma.review.aggregate({
+            where: { professionalId },
+            _avg: { rating: true },
+        });
+        return Math.round((result._avg.rating ?? 0) * 10) / 10;
     }
 };
 ReviewsService = __decorate([
-    Injectable()
+    Injectable(),
+    __metadata("design:paramtypes", [PrismaService])
 ], ReviewsService);
 export { ReviewsService };
 //# sourceMappingURL=reviews.service.js.map

@@ -1,15 +1,35 @@
-import { CreateReviewDto } from './dto/create-review.dto.js';
-export interface Review {
-    id: string;
-    professionalId: string;
-    customerId: string;
-    rating: number;
-    comment?: string;
-    createdAt: Date;
-}
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { CreateReviewDto } from './dto/create-review.dto.js';
 export declare class ReviewsService {
-    private reviews;
-    create(customerId: string, createReviewDto: CreateReviewDto): Promise<Review>;
-    findByProfessional(professionalId: string): Promise<Review[]>;
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    create(customerId: string, createReviewDto: CreateReviewDto): Promise<{
+        customer: {
+            id: string;
+            fullname: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        comment: string | null;
+        createdAt: Date;
+        professionalId: string;
+        customerId: string;
+        rating: number;
+    }>;
+    findByProfessional(professionalId: string): Promise<({
+        customer: {
+            id: string;
+            fullname: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        comment: string | null;
+        createdAt: Date;
+        professionalId: string;
+        customerId: string;
+        rating: number;
+    })[]>;
     getAverageRating(professionalId: string): Promise<number>;
 }

@@ -49,4 +49,16 @@ export declare class UsersController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    uploadAvatar(userId: string, file: Express.Multer.File): Promise<{
+        id: string;
+        fullname: string;
+        username: string;
+        email: string;
+        phoneNumber: string | null;
+        role: import("@prisma/client").$Enums.Role;
+        avatarUrl: string | null;
+        isVerifiedProfessional: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
 }

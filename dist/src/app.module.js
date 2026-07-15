@@ -15,6 +15,7 @@ import { CategoriesModule } from './categories/categories.module.js';
 import { PostsModule } from './posts/posts.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -28,6 +29,7 @@ AppModule = __decorate([
             PostsModule,
             ReviewsModule,
             PrismaModule,
+            CloudinaryModule,
         ],
         controllers: [AppController],
         providers: [AppService],

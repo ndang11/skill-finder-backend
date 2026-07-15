@@ -28,6 +28,14 @@ export class PrismaService
       configService.get<string>('SUPABASE_DB_URL') ??
       configService.getOrThrow<string>('DATABASE_URL');
 
+    // Guard: fail fast with a clear message if the password placeholder was never replaced.
+    if (connectionString.includes('[YOUR-PASSWORD]')) {
+      throw new Error(
+        '[PrismaService] SUPABASE_DB_URL still contains the placeholder "[YOUR-PASSWORD]". ' +
+          'Please replace it with your actual Supabase database password in the .env file.',
+      );
+    }
+
     const adapter = new PrismaPg({ connectionString });
     super({ adapter });
   }

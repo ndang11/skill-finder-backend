@@ -10,7 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, Post, Body, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Put, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
@@ -29,6 +30,9 @@ let UsersController = class UsersController {
     }
     updateProfile(userId, updateProfileDto) {
         return this.usersService.update(userId, updateProfileDto);
+    }
+    async uploadAvatar(userId, file) {
+        return this.usersService.updateAvatar(userId, file);
     }
 };
 __decorate([
@@ -55,6 +59,16 @@ __decorate([
     __metadata("design:paramtypes", [String, UpdateProfileDto]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "updateProfile", null);
+__decorate([
+    UseGuards(SupabaseAuthGuard),
+    Put('profile/avatar'),
+    UseInterceptors(FileInterceptor('avatar')),
+    __param(0, GetUser('id')),
+    __param(1, UploadedFile()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "uploadAvatar", null);
 UsersController = __decorate([
     Controller('users'),
     __metadata("design:paramtypes", [UsersService])

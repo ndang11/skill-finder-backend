@@ -5,18 +5,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service.js';
-import { UsersController } from './users.controller.js';
-import { CloudinaryModule } from '../cloudinary/cloudinary.module.js';
-let UsersModule = class UsersModule {
+import { CloudinaryProvider } from './cloudinary.provider.js';
+import { CloudinaryService } from './cloudinary.service.js';
+import { CloudinaryController } from './cloudinary.controller.js';
+let CloudinaryModule = class CloudinaryModule {
 };
-UsersModule = __decorate([
+CloudinaryModule = __decorate([
     Module({
-        imports: [CloudinaryModule],
-        controllers: [UsersController],
-        providers: [UsersService],
-        exports: [UsersService],
+        controllers: [CloudinaryController],
+        providers: [CloudinaryProvider, CloudinaryService],
+        exports: [CloudinaryProvider, CloudinaryService],
     })
-], UsersModule);
-export { UsersModule };
-//# sourceMappingURL=users.module.js.map
+], CloudinaryModule);
+export { CloudinaryModule };
+//# sourceMappingURL=cloudinary.module.js.map

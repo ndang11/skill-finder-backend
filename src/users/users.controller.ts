@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Put, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
@@ -28,5 +29,15 @@ export class UsersController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     return this.usersService.update(userId, updateProfileDto);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Put('profile/avatar')
+  @UseInterceptors(FileInterceptor('avatar')) // Listens for file payload key 'avatar'
+  async uploadAvatar(
+    @GetUser('id') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.updateAvatar(userId, file);
   }
 }

@@ -7,28 +7,43 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable } from '@nestjs/common';
+var SupabaseStrategy_1;
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-let SupabaseStrategy = class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
+import jwksRsa from 'jwks-rsa';
+let SupabaseStrategy = SupabaseStrategy_1 = class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
+    logger = new Logger(SupabaseStrategy_1.name);
     constructor(configService) {
+        const jwksUri = configService.getOrThrow('SUPABASE_JWKS_URL');
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: configService.getOrThrow('SUPABASE_JWT_SECRET'),
-            algorithms: ['HS256'],
+            secretOrKeyProvider: jwksRsa.passportJwtSecret({
+                cache: true,
+                rateLimit: true,
+                jwksRequestsPerMinute: 5,
+                jwksUri,
+            }),
+            algorithms: ['RS256'],
             ignoreExpiration: false,
         });
     }
     validate(payload) {
+        if (!payload?.sub) {
+            this.logger.warn('JWT payload missing sub claim');
+            throw new UnauthorizedException('Invalid token payload');
+        }
         return {
             id: payload.sub,
             email: payload.email ?? '',
-            role: payload.user_metadata?.role ?? 'customer',
+            role: payload.user_metadata?.role ??
+                payload.app_metadata?.role ??
+                'customer',
         };
     }
 };
-SupabaseStrategy = __decorate([
+SupabaseStrategy = SupabaseStrategy_1 = __decorate([
     Injectable(),
     __metadata("design:paramtypes", [ConfigService])
 ], SupabaseStrategy);

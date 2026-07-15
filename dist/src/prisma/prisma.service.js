@@ -17,6 +17,10 @@ let PrismaService = PrismaService_1 = class PrismaService extends PrismaClient {
     constructor(configService) {
         const connectionString = configService.get('SUPABASE_DB_URL') ??
             configService.getOrThrow('DATABASE_URL');
+        if (connectionString.includes('[YOUR-PASSWORD]')) {
+            throw new Error('[PrismaService] SUPABASE_DB_URL still contains the placeholder "[YOUR-PASSWORD]". ' +
+                'Please replace it with your actual Supabase database password in the .env file.');
+        }
         const adapter = new PrismaPg({ connectionString });
         super({ adapter });
     }

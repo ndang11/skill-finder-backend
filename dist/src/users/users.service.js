@@ -9,10 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { CloudinaryService } from '../cloudinary/cloudinary.service.js';
 let UsersService = class UsersService {
     prisma;
-    constructor(prisma) {
+    cloudinaryService;
+    constructor(prisma, cloudinaryService) {
         this.prisma = prisma;
+        this.cloudinaryService = cloudinaryService;
     }
     async create(createUserDto) {
         return this.prisma.user.upsert({
@@ -52,10 +55,35 @@ let UsersService = class UsersService {
             data: updateProfileDto,
         });
     }
+    async updateAvatar(userId, file) {
+        const user = await this.findOne(userId);
+        const uploadResult = await this.cloudinaryService.uploadImage(file, 'avatars');
+        if (user.avatarUrl && user.avatarUrl.includes('cloudinary.com')) {
+            try {
+                const parts = user.avatarUrl.split('/');
+                const uploadIndex = parts.indexOf('upload');
+                if (uploadIndex !== -1 && parts.length > uploadIndex + 2) {
+                    const publicIdWithExtension = parts.slice(uploadIndex + 2).join('/');
+                    const publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.'));
+                    if (publicId) {
+                        await this.cloudinaryService.deleteImage(publicId);
+                    }
+                }
+            }
+            catch (err) {
+                console.warn(`Failed to delete old avatar in Cloudinary: ${err instanceof Error ? err.message : err}`);
+            }
+        }
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { avatarUrl: uploadResult.secure_url },
+        });
+    }
 };
 UsersService = __decorate([
     Injectable(),
-    __metadata("design:paramtypes", [PrismaService])
+    __metadata("design:paramtypes", [PrismaService,
+        CloudinaryService])
 ], UsersService);
 export { UsersService };
 //# sourceMappingURL=users.service.js.map

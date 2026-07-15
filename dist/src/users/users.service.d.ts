@@ -1,9 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service.js';
+import { CloudinaryService } from '../cloudinary/cloudinary.service.js';
 import type { CreateUserDto } from './dto/create-user.dto.js';
 import type { UpdateProfileDto } from './dto/update-profile.dto.js';
 export declare class UsersService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cloudinaryService;
+    constructor(prisma: PrismaService, cloudinaryService: CloudinaryService);
     create(createUserDto: CreateUserDto): Promise<{
         id: string;
         fullname: string;
@@ -38,6 +40,18 @@ export declare class UsersService {
         updatedAt: Date;
     }>;
     update(id: string, updateProfileDto: UpdateProfileDto): Promise<{
+        id: string;
+        fullname: string;
+        username: string;
+        email: string;
+        phoneNumber: string | null;
+        role: import("@prisma/client").$Enums.Role;
+        avatarUrl: string | null;
+        isVerifiedProfessional: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    updateAvatar(userId: string, file: Express.Multer.File): Promise<{
         id: string;
         fullname: string;
         username: string;

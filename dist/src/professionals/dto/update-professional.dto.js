@@ -11,6 +11,8 @@ import { IsString, IsOptional, IsArray } from 'class-validator';
 export class UpdateProfessionalDto {
     categoryId;
     location;
+    bio;
+    whatsappNumber;
     skills;
 }
 __decorate([
@@ -23,6 +25,16 @@ __decorate([
     IsOptional(),
     __metadata("design:type", String)
 ], UpdateProfessionalDto.prototype, "location", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], UpdateProfessionalDto.prototype, "bio", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], UpdateProfessionalDto.prototype, "whatsappNumber", void 0);
 __decorate([
     IsArray(),
     IsString({ each: true }),

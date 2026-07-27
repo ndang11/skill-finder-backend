@@ -3,6 +3,10 @@ import { CreateCategoryDto } from './dto/create-category.dto.js';
 export declare class CategoriesController {
     private readonly categoriesService;
     constructor(categoriesService: CategoriesService);
-    findAll(): Promise<any>;
-    create(createCategoryDto: CreateCategoryDto): Promise<any>;
+    findAll(): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+    }[]>;
+    create(createCategoryDto: CreateCategoryDto): Promise<void>;
 }

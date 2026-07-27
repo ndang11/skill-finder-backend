@@ -9,6 +9,14 @@ export class UpdateProfessionalDto {
   @IsOptional()
   location?: string;
 
+  @IsString()
+  @IsOptional()
+  bio?: string;
+
+  @IsString()
+  @IsOptional()
+  whatsappNumber?: string;
+
   @IsArray()
   @IsString({ each: true })
   @IsOptional()

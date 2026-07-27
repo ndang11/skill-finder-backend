@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 let ProfessionalsService = class ProfessionalsService {
     prisma;
@@ -15,87 +15,85 @@ let ProfessionalsService = class ProfessionalsService {
         this.prisma = prisma;
     }
     async create(userId, categoryId, location) {
-        return this.prisma.professional.upsert({
-            where: { userId },
-            update: { categoryId, location },
-            create: { userId, categoryId, location, skills: [] },
-            include: { user: true, category: true },
-        });
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new NotFoundException('User not found');
+        return user;
     }
     async findAll(searchDto) {
-        return this.prisma.professional.findMany({
-            where: {
-                ...(searchDto.category && {
-                    category: {
-                        slug: { contains: searchDto.category, mode: 'insensitive' },
-                    },
-                }),
-                ...(searchDto.location && {
-                    location: { contains: searchDto.location, mode: 'insensitive' },
-                }),
-            },
+        const users = await this.prisma.user.findMany({
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        fullname: true,
-                        username: true,
-                        avatarUrl: true,
-                        isVerifiedProfessional: true,
-                    },
-                },
-                category: true,
-                reviews: {
-                    select: { rating: true },
-                },
-            },
-            orderBy: { completedJobs: 'desc' },
+                skills: true,
+                reviewsReceived: true,
+                providerBookings: { where: { status: 'COMPLETED' } }
+            }
         });
+        return users.map(user => this.mapUserToProfessionalProfile(user));
     }
     async findOne(id) {
-        const prof = await this.prisma.professional.findFirst({
-            where: { OR: [{ id }, { userId: id }] },
+        const user = await this.prisma.user.findUnique({
+            where: { id },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        fullname: true,
-                        username: true,
-                        avatarUrl: true,
-                        isVerifiedProfessional: true,
-                    },
-                },
-                category: true,
-                reviews: {
-                    include: {
-                        customer: {
-                            select: { id: true, fullname: true, avatarUrl: true },
-                        },
-                    },
-                    orderBy: { createdAt: 'desc' },
-                },
-            },
+                skills: true,
+                reviewsReceived: true,
+                providerBookings: { where: { status: 'COMPLETED' } }
+            }
         });
-        if (!prof)
+        if (!user)
             throw new NotFoundException(`Professional profile not found`);
-        return prof;
+        return this.mapUserToProfessionalProfile(user);
     }
     async update(userId, updateDto) {
-        const prof = await this.prisma.professional.findUnique({ where: { userId } });
-        if (!prof)
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
             throw new NotFoundException(`Professional profile not found`);
-        return this.prisma.professional.update({
-            where: { userId },
-            data: updateDto,
-            include: { user: true, category: true },
+        if (updateDto.skills && Array.isArray(updateDto.skills)) {
+            await this.prisma.skill.deleteMany({ where: { providerId: userId } });
+            if (updateDto.skills.length > 0) {
+                await this.prisma.skill.createMany({
+                    data: updateDto.skills.map((skillName) => ({
+                        title: skillName,
+                        description: skillName,
+                        category: updateDto.categoryId || 'General',
+                        providerId: userId,
+                    })),
+                });
+            }
+        }
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(updateDto.location !== undefined && { location: updateDto.location }),
+                ...(updateDto.bio !== undefined && { bio: updateDto.bio }),
+                ...(updateDto.whatsappNumber !== undefined && { whatsappNumber: updateDto.whatsappNumber }),
+            },
         });
+        return this.findOne(userId);
     }
     async getAverageRating(professionalId) {
         const result = await this.prisma.review.aggregate({
-            where: { professionalId },
+            where: { receiverId: professionalId },
             _avg: { rating: true },
         });
         return Math.round((result._avg.rating ?? 0) * 10) / 10;
+    }
+    mapUserToProfessionalProfile(user) {
+        const averageRating = user.reviewsReceived?.length > 0
+            ? user.reviewsReceived.reduce((acc, r) => acc + r.rating, 0) / user.reviewsReceived.length
+            : 0;
+        return {
+            id: user.id,
+            userId: user.id,
+            fullName: user.fullName || '',
+            avatarUrl: user.avatarUrl || null,
+            category: user.skills?.[0]?.category || 'Uncategorized',
+            location: user.location || 'Online',
+            bio: user.bio || '',
+            skills: user.skills?.map((s) => s.title) || [],
+            averageRating: Math.round(averageRating * 10) / 10,
+            completedJobs: user.providerBookings?.length || 0,
+            whatsappNumber: user.whatsappNumber || '',
+        };
     }
 };
 ProfessionalsService = __decorate([

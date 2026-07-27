@@ -3,6 +3,10 @@ import type { CreateCategoryDto } from './dto/create-category.dto.js';
 export declare class CategoriesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    create(createCategoryDto: CreateCategoryDto): Promise<any>;
-    findAll(): Promise<any>;
+    create(createCategoryDto: CreateCategoryDto): Promise<void>;
+    findAll(): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+    }[]>;
 }

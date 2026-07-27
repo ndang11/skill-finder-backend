@@ -7,32 +7,44 @@ export declare class UsersController {
     create(createUserDto: CreateUserDto): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     getProfile(userId: string): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     updateProfile(userId: string, updateProfileDto: UpdateProfileDto): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     uploadAvatar(userId: string, file: Express.Multer.File): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;

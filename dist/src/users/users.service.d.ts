@@ -9,32 +9,44 @@ export declare class UsersService {
     create(createUserDto: CreateUserDto): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     findOne(id: string): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: string, updateProfileDto: UpdateProfileDto): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     updateAvatar(userId: string, file: Express.Multer.File): Promise<{
         id: string;
         email: string;
-        avatarUrl: string | null;
         fullName: string;
+        avatarUrl: string | null;
+        bio: string | null;
+        location: string | null;
+        whatsappNumber: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;

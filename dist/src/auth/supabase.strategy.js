@@ -25,7 +25,7 @@ let SupabaseStrategy = SupabaseStrategy_1 = class SupabaseStrategy extends Passp
                 jwksRequestsPerMinute: 5,
                 jwksUri,
             }),
-            algorithms: ['RS256'],
+            algorithms: ['RS256', 'ES256'],
             ignoreExpiration: false,
         });
     }

@@ -1,100 +1,153 @@
-datasource db {
-  provider = "postgresql"
-}
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  customer
-  professional
-  admin
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
 }
 
 model User {
-  id                     String         @id
-  email                  String         @unique
-  username               String         @unique
-  fullname               String
-  phoneNumber            String?
-  avatarUrl              String?
-  role                   Role           @default(customer)
-  isVerifiedProfessional Boolean        @default(false)
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  id           String        @id @default(uuid())
+  email        String        @unique
+  fullName     String        @default("")
+  avatarUrl    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  // Relations
-  professionalProfile    Professional?
-  posts                  Post[]
-  comments               Comment[]
-  reviewsWritten         Review[]       @relation("CustomerReviews")
+  // Skills offered by the user
+  skills       Skill[]       @relation("UserSkills")
 
-  @@map("users")
+  // Bookings made as a client (requesting a skill)
+  clientBookings Booking[]   @relation("ClientBookings")
+
+  // Bookings received as a provider (offering a skill)
+  providerBookings Booking[] @relation("ProviderBookings")
+
+  // Saved skills (Bookmarks)
+  savedSkills  SavedSkill[]
+
+  // Reviews given to others
+  reviewsGiven Review[]      @relation("ReviewsGiven")
+
+  // Reviews received from others
+  reviewsReceived Review[]   @relation("ReviewsReceived")
+
+  // Community feed posts and comments
+  posts        Post[]        @relation("UserPosts")
+  comments     Comment[]     @relation("UserComments")
 }
 
-model Category {
-  id            String         @id @default(uuid())
-  name          String         @unique
-  slug          String         @unique
-  professionals Professional[]
+model Skill {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  category    String
+  price       Float?       // Optional: for paid skills/freelancing
+  providerId  String
+  provider    User         @relation("UserSkills", fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  @@map("categories")
+  bookings    Booking[]
+  savedBy     SavedSkill[]
+  reviews     Review[]
+
+  @@index([providerId])
 }
 
-model Professional {
-  id            String   @id @default(uuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId    String
-  category      Category @relation(fields: [categoryId], references: [id])
-  location      String
-  skills        String[]
-  completedJobs Int      @default(0)
+model SavedSkill {
+  id        String   @id @default(uuid())
+  userId    String
+  skillId   String
+  createdAt DateTime @default(now())
 
-  // Relations
-  reviews       Review[] @relation("ProfessionalReviews")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  @@map("professionals")
+  // Prevents duplicate bookmarks for the same skill by the same user
+  @@unique([userId, skillId])
+  @@index([userId])
 }
+
+model Booking {
+  id          String        @id @default(uuid())
+  clientId    String
+  providerId  String
+  skillId     String
+  status      BookingStatus @default(PENDING)
+  scheduledAt DateTime
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  client      User          @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+  provider    User          @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
+  skill       Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  review      Review?
+
+  @@index([clientId])
+  @@index([providerId])
+  @@index([skillId])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  bookingId  String   @unique // One review per completed booking
+  authorId   String
+  receiverId String
+  skillId    String
+  rating     Int      // e.g., 1 to 5 stars
+  comment    String
+  createdAt  DateTime @default(now())
+
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  author     User     @relation("ReviewsGiven", fields: [authorId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReviewsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  skill      Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([receiverId])
+  @@index([skillId])
+}
+
+// ─── Community Feed ────────────────────────────────────────────────────────────
 
 model Post {
   id             String    @id @default(uuid())
+  authorId       String
   title          String
   content        String
-  authorId       String
-  author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorCategory String
+  postType       String    @default("showcase") // showcase | tip | availability | announcement
+  tags           String[]
+  imageUrl       String?
   likes          String[]  // Array of User IDs who liked the post
   createdAt      DateTime  @default(now())
 
-  // Relations
+  author         User      @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
   comments       Comment[]
 
-  @@map("posts")
+  @@index([authorId])
 }
 
 model Comment {
   id        String   @id @default(uuid())
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime @default(now())
 
-  @@map("comments")
-}
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
 
-model Review {
-  id             String       @id @default(uuid())
-  professionalId String
-  professional   Professional @relation("ProfessionalReviews", fields: [professionalId], references: [id], onDelete: Cascade)
-  customerId     String
-  customer       User         @relation("CustomerReviews", fields: [customerId], references: [id], onDelete: Cascade)
-  rating         Float
-  comment        String?
-  createdAt      DateTime     @default(now())
-
-  @@map("reviews")
+  @@index([postId])
 }

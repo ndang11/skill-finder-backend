@@ -16,8 +16,6 @@ import { CreatePostDto } from './dto/create-post.dto.js';
 import { UpdatePostDto } from './dto/update-post.dto.js';
 import { AddCommentDto } from './dto/add-comment.dto.js';
 import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
-import { RolesGuard } from '../common/guards/roles.guard.js';
-import { Roles } from '../common/decorators/roles.decorator.js';
 import { GetUser } from '../common/decorators/get-user.decorator.js';
 let PostsController = class PostsController {
     postsService;
@@ -54,8 +52,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "findAll", null);
 __decorate([
-    UseGuards(SupabaseAuthGuard, RolesGuard),
-    Roles('professional', 'admin'),
+    UseGuards(SupabaseAuthGuard),
     Post(),
     __param(0, GetUser('id')),
     __param(1, Body()),

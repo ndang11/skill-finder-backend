@@ -5,6 +5,20 @@ import { AuthGuard } from '@nestjs/passport';
 export class SupabaseAuthGuard extends AuthGuard('supabase') {
   private readonly logger = new Logger(SupabaseAuthGuard.name);
 
+  canActivate(context: import('@nestjs/common').ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const payloadBase64 = token.split('.')[0];
+        const header = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+        this.logger.debug(`JWT Header: ${JSON.stringify(header)}`);
+      } catch (e) {}
+    }
+    return super.canActivate(context);
+  }
+
   override handleRequest<TUser = any>(
     err: unknown,
     user: unknown,

@@ -9,95 +9,110 @@ export declare class PostsController {
         comments: ({
             author: {
                 id: string;
-                fullname: string;
+                fullName: string;
                 avatarUrl: string | null;
             };
         } & {
             id: string;
-            createdAt: Date;
-            content: string;
             authorId: string;
+            content: string;
+            createdAt: Date;
             postId: string;
         })[];
+        author: {
+            id: string;
+            fullName: string;
+            avatarUrl: string | null;
+        };
         _count: {
             comments: number;
         };
-        author: {
-            id: string;
-            fullname: string;
-            avatarUrl: string | null;
-        };
     } & {
         id: string;
-        createdAt: Date;
+        authorId: string;
         title: string;
         content: string;
         authorCategory: string;
-        authorId: string;
+        postType: string;
+        tags: string[];
+        imageUrl: string | null;
         likes: string[];
+        createdAt: Date;
     })[]>;
     create(userId: string, createPostDto: CreatePostDto): Promise<{
         author: {
             id: string;
-            fullname: string;
+            fullName: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
-        createdAt: Date;
+        authorId: string;
         title: string;
         content: string;
         authorCategory: string;
-        authorId: string;
+        postType: string;
+        tags: string[];
+        imageUrl: string | null;
         likes: string[];
+        createdAt: Date;
     }>;
     getMyPosts(userId: string): Promise<({
+        author: {
+            id: string;
+            fullName: string;
+            avatarUrl: string | null;
+        };
         _count: {
             comments: number;
         };
-        author: {
-            id: string;
-            fullname: string;
-            avatarUrl: string | null;
-        };
     } & {
         id: string;
-        createdAt: Date;
+        authorId: string;
         title: string;
         content: string;
         authorCategory: string;
-        authorId: string;
+        postType: string;
+        tags: string[];
+        imageUrl: string | null;
         likes: string[];
+        createdAt: Date;
     })[]>;
     update(postId: string, userId: string, updatePostDto: UpdatePostDto): Promise<{
         id: string;
-        createdAt: Date;
+        authorId: string;
         title: string;
         content: string;
         authorCategory: string;
-        authorId: string;
+        postType: string;
+        tags: string[];
+        imageUrl: string | null;
         likes: string[];
+        createdAt: Date;
     }>;
     toggleLike(postId: string, userId: string): Promise<{
         id: string;
-        createdAt: Date;
+        authorId: string;
         title: string;
         content: string;
         authorCategory: string;
-        authorId: string;
+        postType: string;
+        tags: string[];
+        imageUrl: string | null;
         likes: string[];
+        createdAt: Date;
     }>;
     addComment(postId: string, addCommentDto: AddCommentDto): Promise<{
         author: {
             id: string;
-            fullname: string;
+            fullName: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
-        createdAt: Date;
-        content: string;
         authorId: string;
+        content: string;
+        createdAt: Date;
         postId: string;
     }>;
     remove(postId: string, userId: string): Promise<void>;

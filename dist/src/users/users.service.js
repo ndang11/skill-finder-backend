@@ -22,27 +22,20 @@ let UsersService = class UsersService {
             where: { id: createUserDto.id },
             update: {
                 email: createUserDto.email,
-                fullname: createUserDto.fullname,
-                username: createUserDto.username,
-                phoneNumber: createUserDto.phoneNumber,
+                fullName: createUserDto.fullname,
                 avatarUrl: createUserDto.avatarUrl,
-                role: createUserDto.role,
             },
             create: {
                 id: createUserDto.id,
                 email: createUserDto.email ?? '',
-                fullname: createUserDto.fullname,
-                username: createUserDto.username,
-                phoneNumber: createUserDto.phoneNumber,
+                fullName: createUserDto.fullname,
                 avatarUrl: createUserDto.avatarUrl,
-                role: createUserDto.role,
             },
         });
     }
     async findOne(id) {
         const user = await this.prisma.user.findUnique({
             where: { id },
-            include: { professionalProfile: true },
         });
         if (!user)
             throw new NotFoundException(`User not found`);

@@ -7,11 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 export class CreatePostDto {
     title;
     content;
     authorCategory;
+    postType;
+    tags;
+    imageUrl;
 }
 __decorate([
     IsString(),
@@ -25,4 +28,20 @@ __decorate([
     IsString(),
     __metadata("design:type", String)
 ], CreatePostDto.prototype, "authorCategory", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "postType", void 0);
+__decorate([
+    IsArray(),
+    IsString({ each: true }),
+    IsOptional(),
+    __metadata("design:type", Array)
+], CreatePostDto.prototype, "tags", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "imageUrl", void 0);
 //# sourceMappingURL=create-post.dto.js.map

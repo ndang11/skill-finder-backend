@@ -14,8 +14,6 @@ import { CreatePostDto } from './dto/create-post.dto.js';
 import { UpdatePostDto } from './dto/update-post.dto.js';
 import { AddCommentDto } from './dto/add-comment.dto.js';
 import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
-import { RolesGuard } from '../common/guards/roles.guard.js';
-import { Roles } from '../common/decorators/roles.decorator.js';
 import { GetUser } from '../common/decorators/get-user.decorator.js';
 
 @Controller('posts')
@@ -28,9 +26,8 @@ export class PostsController {
     return this.postsService.findAll(category);
   }
 
-  // Only verified professionals can post
-  @UseGuards(SupabaseAuthGuard, RolesGuard)
-  @Roles('professional', 'admin')
+  // Only authenticated users can create posts (page is professional-only in the UI)
+  @UseGuards(SupabaseAuthGuard)
   @Post()
   create(@GetUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
     return this.postsService.create(userId, createPostDto);

@@ -4,6 +4,10 @@ import type { CreatePostDto } from './dto/create-post.dto.js';
 import type { UpdatePostDto } from './dto/update-post.dto.js';
 import type { AddCommentDto } from './dto/add-comment.dto.js';
 
+const authorSelect = {
+  select: { id: true, fullName: true, avatarUrl: true },
+};
+
 @Injectable()
 export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -14,8 +18,10 @@ export class PostsService {
         ...createPostDto,
         authorId,
         likes: [],
+        tags: createPostDto.tags ?? [],
+        postType: createPostDto.postType ?? 'showcase',
       },
-      include: { author: { select: { id: true, fullname: true, avatarUrl: true } } },
+      include: { author: authorSelect },
     });
   }
 
@@ -25,11 +31,9 @@ export class PostsService {
         ? { authorCategory: { equals: category, mode: 'insensitive' } }
         : undefined,
       include: {
-        author: { select: { id: true, fullname: true, avatarUrl: true } },
+        author: authorSelect,
         comments: {
-          include: {
-            author: { select: { id: true, fullname: true, avatarUrl: true } },
-          },
+          include: { author: authorSelect },
           orderBy: { createdAt: 'asc' },
         },
         _count: { select: { comments: true } },
@@ -42,7 +46,7 @@ export class PostsService {
     return this.prisma.post.findMany({
       where: { authorId },
       include: {
-        author: { select: { id: true, fullname: true, avatarUrl: true } },
+        author: authorSelect,
         _count: { select: { comments: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -52,7 +56,8 @@ export class PostsService {
   async update(postId: string, authorId: string, updatePostDto: UpdatePostDto) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException(`Post not found`);
-    if (post.authorId !== authorId) throw new ForbiddenException(`Cannot edit another user's post`);
+    if (post.authorId !== authorId)
+      throw new ForbiddenException(`Cannot edit another user's post`);
 
     return this.prisma.post.update({
       where: { id: postId },
@@ -70,7 +75,9 @@ export class PostsService {
     return this.prisma.post.update({
       where: { id: postId },
       data: {
-        likes: alreadyLiked ? likes.filter((id) => id !== userId) : [...likes, userId],
+        likes: alreadyLiked
+          ? likes.filter((id) => id !== userId)
+          : [...likes, userId],
       },
     });
   }
@@ -85,16 +92,15 @@ export class PostsService {
         authorId: addCommentDto.authorId,
         content: addCommentDto.content,
       },
-      include: {
-        author: { select: { id: true, fullname: true, avatarUrl: true } },
-      },
+      include: { author: authorSelect },
     });
   }
 
   async remove(postId: string, authorId: string) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException(`Post not found`);
-    if (post.authorId !== authorId) throw new ForbiddenException(`Cannot delete another user's post`);
+    if (post.authorId !== authorId)
+      throw new ForbiddenException(`Cannot delete another user's post`);
 
     await this.prisma.post.delete({ where: { id: postId } });
   }

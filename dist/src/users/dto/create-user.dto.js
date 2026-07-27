@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsString, IsEmail, IsOptional, IsEnum, IsUUID } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsEnum } from 'class-validator';
 export class CreateUserDto {
     id;
     fullname;
@@ -27,6 +27,7 @@ __decorate([
 ], CreateUserDto.prototype, "fullname", void 0);
 __decorate([
     IsString(),
+    IsOptional(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "username", void 0);
 __decorate([
@@ -41,6 +42,7 @@ __decorate([
 ], CreateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
     IsEnum(['customer', 'professional', 'admin']),
+    IsOptional(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
 __decorate([

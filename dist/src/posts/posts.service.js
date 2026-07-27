@@ -9,6 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+const authorSelect = {
+    select: { id: true, fullName: true, avatarUrl: true },
+};
 let PostsService = class PostsService {
     prisma;
     constructor(prisma) {
@@ -20,8 +23,10 @@ let PostsService = class PostsService {
                 ...createPostDto,
                 authorId,
                 likes: [],
+                tags: createPostDto.tags ?? [],
+                postType: createPostDto.postType ?? 'showcase',
             },
-            include: { author: { select: { id: true, fullname: true, avatarUrl: true } } },
+            include: { author: authorSelect },
         });
     }
     async findAll(category) {
@@ -30,11 +35,9 @@ let PostsService = class PostsService {
                 ? { authorCategory: { equals: category, mode: 'insensitive' } }
                 : undefined,
             include: {
-                author: { select: { id: true, fullname: true, avatarUrl: true } },
+                author: authorSelect,
                 comments: {
-                    include: {
-                        author: { select: { id: true, fullname: true, avatarUrl: true } },
-                    },
+                    include: { author: authorSelect },
                     orderBy: { createdAt: 'asc' },
                 },
                 _count: { select: { comments: true } },
@@ -46,7 +49,7 @@ let PostsService = class PostsService {
         return this.prisma.post.findMany({
             where: { authorId },
             include: {
-                author: { select: { id: true, fullname: true, avatarUrl: true } },
+                author: authorSelect,
                 _count: { select: { comments: true } },
             },
             orderBy: { createdAt: 'desc' },
@@ -72,7 +75,9 @@ let PostsService = class PostsService {
         return this.prisma.post.update({
             where: { id: postId },
             data: {
-                likes: alreadyLiked ? likes.filter((id) => id !== userId) : [...likes, userId],
+                likes: alreadyLiked
+                    ? likes.filter((id) => id !== userId)
+                    : [...likes, userId],
             },
         });
     }
@@ -86,9 +91,7 @@ let PostsService = class PostsService {
                 authorId: addCommentDto.authorId,
                 content: addCommentDto.content,
             },
-            include: {
-                author: { select: { id: true, fullname: true, avatarUrl: true } },
-            },
+            include: { author: authorSelect },
         });
     }
     async remove(postId, authorId) {

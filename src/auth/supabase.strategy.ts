@@ -6,13 +6,8 @@ import jwksRsa from 'jwks-rsa';
 
 /**
  * SupabaseStrategy verifies incoming Bearer JWTs using your Supabase
- * project's public JWKS endpoint (RS256). This works for all Supabase
- * projects regardless of whether they use HS256 or RS256 signing.
- *
- * The JWKS endpoint: https://<project>.supabase.co/auth/v1/.well-known/jwks.json
- *
- * The client fetches the public RSA key from the JWKS endpoint, caches it,
- * and uses it to verify token signatures — no shared secret required.
+ * project's public JWKS endpoint.
+ * Supabase tokens can be RS256 or ES256.
  */
 @Injectable()
 export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
@@ -22,20 +17,14 @@ export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
     const jwksUri = configService.getOrThrow<string>('SUPABASE_JWKS_URL');
 
     super({
-      // Extract the Bearer token from the Authorization header.
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-
-      // Use the JWKS endpoint to fetch the RSA public key for RS256 verification.
-      // jwks-rsa will cache keys and auto-rotate when Supabase rolls them.
       secretOrKeyProvider: jwksRsa.passportJwtSecret({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
         jwksUri,
       }),
-
-      // Supabase issues RS256 tokens by default for all new projects.
-      algorithms: ['RS256'],
+      algorithms: ['RS256', 'ES256'],
       ignoreExpiration: false,
     });
   }

@@ -9,6 +9,20 @@ import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 let SupabaseAuthGuard = SupabaseAuthGuard_1 = class SupabaseAuthGuard extends AuthGuard('supabase') {
     logger = new Logger(SupabaseAuthGuard_1.name);
+    canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const authHeader = request.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const payloadBase64 = token.split('.')[0];
+                const header = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+                this.logger.debug(`JWT Header: ${JSON.stringify(header)}`);
+            }
+            catch (e) { }
+        }
+        return super.canActivate(context);
+    }
     handleRequest(err, user, info) {
         if (err || !user) {
             const message = err?.message ||

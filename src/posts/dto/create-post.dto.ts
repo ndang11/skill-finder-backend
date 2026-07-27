@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
@@ -9,4 +9,17 @@ export class CreatePostDto {
 
   @IsString()
   authorCategory: string;
+
+  @IsString()
+  @IsOptional()
+  postType?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  tags?: string[];
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 }

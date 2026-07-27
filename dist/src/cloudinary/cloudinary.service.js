@@ -34,6 +34,20 @@ let CloudinaryService = class CloudinaryService {
             throw new BadRequestException(`Failed to delete image: ${error instanceof Error ? error.message : 'Unknown Error'}`);
         }
     }
+    generateSignature(folder) {
+        const timestamp = Math.round(new Date().getTime() / 1000);
+        const apiSecret = cloudinary.config().api_secret || process.env.CLOUDINARY_API_SECRET || '';
+        const signature = cloudinary.utils.api_sign_request({
+            timestamp,
+            folder,
+        }, apiSecret);
+        return {
+            signature,
+            timestamp,
+            apiKey: (cloudinary.config().api_key || process.env.CLOUDINARY_API_KEY || ''),
+            cloudName: (cloudinary.config().cloud_name || process.env.CLOUDINARY_CLOUD_NAME || ''),
+        };
+    }
 };
 CloudinaryService = __decorate([
     Injectable()

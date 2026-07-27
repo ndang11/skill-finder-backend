@@ -15,41 +15,13 @@ let ReviewsService = class ReviewsService {
         this.prisma = prisma;
     }
     async create(customerId, createReviewDto) {
-        const prof = await this.prisma.professional.findUnique({
-            where: { id: createReviewDto.professionalId },
-        });
-        if (!prof)
-            throw new NotFoundException(`Professional not found`);
-        if (prof.userId === customerId) {
-            throw new ForbiddenException(`You cannot review your own profile`);
-        }
-        return this.prisma.review.create({
-            data: {
-                professionalId: createReviewDto.professionalId,
-                customerId,
-                rating: createReviewDto.rating,
-                comment: createReviewDto.comment,
-            },
-            include: {
-                customer: { select: { id: true, fullname: true, avatarUrl: true } },
-            },
-        });
+        throw new Error('Not implemented');
     }
     async findByProfessional(professionalId) {
-        return this.prisma.review.findMany({
-            where: { professionalId },
-            include: {
-                customer: { select: { id: true, fullname: true, avatarUrl: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+        return [];
     }
     async getAverageRating(professionalId) {
-        const result = await this.prisma.review.aggregate({
-            where: { professionalId },
-            _avg: { rating: true },
-        });
-        return Math.round((result._avg.rating ?? 0) * 10) / 10;
+        return 0;
     }
 };
 ReviewsService = __decorate([

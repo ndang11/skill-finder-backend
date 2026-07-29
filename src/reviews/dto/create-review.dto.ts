@@ -12,4 +12,12 @@ export class CreateReviewDto {
   @IsString()
   @IsOptional()
   comment?: string;
+
+  @IsUUID()
+  @IsOptional()
+  skillId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  bookingId?: string;
 }

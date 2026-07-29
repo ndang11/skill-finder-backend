@@ -104,18 +104,18 @@ model Booking {
 
 model Review {
   id         String   @id @default(uuid())
-  bookingId  String   @unique // One review per completed booking
+  bookingId  String?  @unique // Optional: review tied to completed booking
   authorId   String
   receiverId String
-  skillId    String
+  skillId    String?  // Optional: review tied to specific skill
   rating     Int      // e.g., 1 to 5 stars
   comment    String
   createdAt  DateTime @default(now())
 
-  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking    Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   author     User     @relation("ReviewsGiven", fields: [authorId], references: [id], onDelete: Cascade)
   receiver   User     @relation("ReviewsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
-  skill      Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skill      Skill?   @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@index([authorId])
   @@index([receiverId])

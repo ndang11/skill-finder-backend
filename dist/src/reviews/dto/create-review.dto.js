@@ -12,6 +12,8 @@ export class CreateReviewDto {
     professionalId;
     rating;
     comment;
+    skillId;
+    bookingId;
 }
 __decorate([
     IsUUID(),
@@ -28,4 +30,14 @@ __decorate([
     IsOptional(),
     __metadata("design:type", String)
 ], CreateReviewDto.prototype, "comment", void 0);
+__decorate([
+    IsUUID(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreateReviewDto.prototype, "skillId", void 0);
+__decorate([
+    IsUUID(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreateReviewDto.prototype, "bookingId", void 0);
 //# sourceMappingURL=create-review.dto.js.map

@@ -14,8 +14,6 @@ import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ReviewsService } from './reviews.service.js';
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
-import { RolesGuard } from '../common/guards/roles.guard.js';
-import { Roles } from '../common/decorators/roles.decorator.js';
 import { GetUser } from '../common/decorators/get-user.decorator.js';
 let ReviewsController = class ReviewsController {
     reviewsService;
@@ -25,6 +23,9 @@ let ReviewsController = class ReviewsController {
     create(customerId, createReviewDto) {
         return this.reviewsService.create(customerId, createReviewDto);
     }
+    findMyReviews(customerId) {
+        return this.reviewsService.findByAuthor(customerId);
+    }
     findByProfessional(professionalId) {
         return this.reviewsService.findByProfessional(professionalId);
     }
@@ -33,8 +34,7 @@ let ReviewsController = class ReviewsController {
     }
 };
 __decorate([
-    UseGuards(SupabaseAuthGuard, RolesGuard),
-    Roles('customer'),
+    UseGuards(SupabaseAuthGuard),
     Post(),
     __param(0, GetUser('id')),
     __param(1, Body()),
@@ -42,6 +42,14 @@ __decorate([
     __metadata("design:paramtypes", [String, CreateReviewDto]),
     __metadata("design:returntype", void 0)
 ], ReviewsController.prototype, "create", null);
+__decorate([
+    UseGuards(SupabaseAuthGuard),
+    Get('my-reviews'),
+    __param(0, GetUser('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ReviewsController.prototype, "findMyReviews", null);
 __decorate([
     Get('professional/:id'),
     __param(0, Param('id')),

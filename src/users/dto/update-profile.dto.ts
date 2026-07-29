@@ -3,11 +3,19 @@ import { IsString, IsOptional } from 'class-validator';
 export class UpdateProfileDto {
   @IsString()
   @IsOptional()
-  fullname?: string;
+  fullName?: string;
 
   @IsString()
   @IsOptional()
-  phoneNumber?: string;
+  bio?: string;
+
+  @IsString()
+  @IsOptional()
+  location?: string;
+
+  @IsString()
+  @IsOptional()
+  whatsappNumber?: string;
 
   @IsString()
   @IsOptional()

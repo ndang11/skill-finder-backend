@@ -9,20 +9,32 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { IsString, IsOptional } from 'class-validator';
 export class UpdateProfileDto {
-    fullname;
-    phoneNumber;
+    fullName;
+    bio;
+    location;
+    whatsappNumber;
     avatarUrl;
 }
 __decorate([
     IsString(),
     IsOptional(),
     __metadata("design:type", String)
-], UpdateProfileDto.prototype, "fullname", void 0);
+], UpdateProfileDto.prototype, "fullName", void 0);
 __decorate([
     IsString(),
     IsOptional(),
     __metadata("design:type", String)
-], UpdateProfileDto.prototype, "phoneNumber", void 0);
+], UpdateProfileDto.prototype, "bio", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], UpdateProfileDto.prototype, "location", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], UpdateProfileDto.prototype, "whatsappNumber", void 0);
 __decorate([
     IsString(),
     IsOptional(),

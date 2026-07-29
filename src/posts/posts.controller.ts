@@ -26,18 +26,25 @@ export class PostsController {
     return this.postsService.findAll(category);
   }
 
+  // Get all posts by the authenticated professional
+  // NOTE: Must be above @Get(':id') so NestJS doesn't treat 'my-posts' as an id
+  @UseGuards(SupabaseAuthGuard)
+  @Get('my-posts')
+  getMyPosts(@GetUser('id') userId: string) {
+    return this.postsService.findByAuthor(userId);
+  }
+
+  // Anyone can view a specific post detail
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(id);
+  }
+
   // Only authenticated users can create posts (page is professional-only in the UI)
   @UseGuards(SupabaseAuthGuard)
   @Post()
   create(@GetUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
     return this.postsService.create(userId, createPostDto);
-  }
-
-  // Get all posts by the authenticated professional
-  @UseGuards(SupabaseAuthGuard)
-  @Get('my-posts')
-  getMyPosts(@GetUser('id') userId: string) {
-    return this.postsService.findByAuthor(userId);
   }
 
   // Update own post

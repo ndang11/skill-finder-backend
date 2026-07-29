@@ -45,6 +45,68 @@ let PostsService = class PostsService {
             orderBy: { createdAt: 'desc' },
         });
     }
+    async findOne(id) {
+        const post = await this.prisma.post.findUnique({
+            where: { id },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        avatarUrl: true,
+                        location: true,
+                        whatsappNumber: true,
+                        bio: true,
+                        createdAt: true,
+                        skills: {
+                            select: {
+                                id: true,
+                                title: true,
+                                category: true,
+                                price: true,
+                            },
+                        },
+                        reviewsReceived: {
+                            select: {
+                                rating: true,
+                            },
+                        },
+                    },
+                },
+                comments: {
+                    include: {
+                        author: authorSelect,
+                    },
+                    orderBy: { createdAt: 'asc' },
+                },
+            },
+        });
+        if (!post) {
+            throw new NotFoundException(`Post with ID "${id}" not found`);
+        }
+        const reviews = post.author?.reviewsReceived || [];
+        const totalReviews = reviews.length;
+        const averageRating = totalReviews > 0
+            ? Math.round((reviews.reduce((acc, curr) => acc + curr.rating, 0) /
+                totalReviews) *
+                10) / 10
+            : 0;
+        return {
+            ...post,
+            author: {
+                id: post.author?.id,
+                fullName: post.author?.fullName || 'Professional',
+                avatarUrl: post.author?.avatarUrl,
+                location: post.author?.location || 'Cameroon',
+                whatsappNumber: post.author?.whatsappNumber,
+                bio: post.author?.bio,
+                createdAt: post.author?.createdAt,
+                skills: post.author?.skills || [],
+                averageRating,
+                totalReviews,
+            },
+        };
+    }
     async findByAuthor(authorId) {
         return this.prisma.post.findMany({
             where: { authorId },

@@ -21,13 +21,33 @@ let ProfessionalsService = class ProfessionalsService {
         return user;
     }
     async findAll(searchDto) {
-        const users = await this.prisma.user.findMany({
+        let users = await this.prisma.user.findMany({
+            where: {
+                ...(searchDto.location && { location: { contains: searchDto.location, mode: 'insensitive' } }),
+                ...(searchDto.query && {
+                    OR: [
+                        { fullName: { contains: searchDto.query, mode: 'insensitive' } },
+                        { bio: { contains: searchDto.query, mode: 'insensitive' } },
+                    ],
+                }),
+            },
             include: {
                 skills: true,
                 reviewsReceived: true,
                 providerBookings: { where: { status: 'COMPLETED' } }
             }
         });
+        if (searchDto.category) {
+            users = users.filter(user => user.skills.some(skill => skill.category === searchDto.category));
+        }
+        if (searchDto.minRating !== undefined) {
+            users = users.filter(user => {
+                const avg = user.reviewsReceived?.length > 0
+                    ? user.reviewsReceived.reduce((acc, r) => acc + r.rating, 0) / user.reviewsReceived.length
+                    : 0;
+                return avg >= searchDto.minRating;
+            });
+        }
         return users.map(user => this.mapUserToProfessionalProfile(user));
     }
     async findOne(id) {

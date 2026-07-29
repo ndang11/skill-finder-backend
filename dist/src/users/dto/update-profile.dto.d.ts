@@ -1,5 +1,7 @@
 export declare class UpdateProfileDto {
-    fullname?: string;
-    phoneNumber?: string;
+    fullName?: string;
+    bio?: string;
+    location?: string;
+    whatsappNumber?: string;
     avatarUrl?: string;
 }

@@ -10,6 +10,10 @@ export class SearchProfessionalDto {
   @IsOptional()
   location?: string;
 
+  @IsString()
+  @IsOptional()
+  query?: string;
+
   @IsNumber()
   @IsOptional()
   @Min(0)

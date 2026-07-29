@@ -12,6 +12,7 @@ import { Type } from 'class-transformer';
 export class SearchProfessionalDto {
     category;
     location;
+    query;
     minRating;
 }
 __decorate([
@@ -24,6 +25,11 @@ __decorate([
     IsOptional(),
     __metadata("design:type", String)
 ], SearchProfessionalDto.prototype, "location", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], SearchProfessionalDto.prototype, "query", void 0);
 __decorate([
     IsNumber(),
     IsOptional(),

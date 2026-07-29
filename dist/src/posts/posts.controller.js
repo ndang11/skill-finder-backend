@@ -25,11 +25,14 @@ let PostsController = class PostsController {
     findAll(category) {
         return this.postsService.findAll(category);
     }
-    create(userId, createPostDto) {
-        return this.postsService.create(userId, createPostDto);
-    }
     getMyPosts(userId) {
         return this.postsService.findByAuthor(userId);
+    }
+    findOne(id) {
+        return this.postsService.findOne(id);
+    }
+    create(userId, createPostDto) {
+        return this.postsService.create(userId, createPostDto);
     }
     update(postId, userId, updatePostDto) {
         return this.postsService.update(postId, userId, updatePostDto);
@@ -53,6 +56,21 @@ __decorate([
 ], PostsController.prototype, "findAll", null);
 __decorate([
     UseGuards(SupabaseAuthGuard),
+    Get('my-posts'),
+    __param(0, GetUser('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], PostsController.prototype, "getMyPosts", null);
+__decorate([
+    Get(':id'),
+    __param(0, Param('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], PostsController.prototype, "findOne", null);
+__decorate([
+    UseGuards(SupabaseAuthGuard),
     Post(),
     __param(0, GetUser('id')),
     __param(1, Body()),
@@ -60,14 +78,6 @@ __decorate([
     __metadata("design:paramtypes", [String, CreatePostDto]),
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "create", null);
-__decorate([
-    UseGuards(SupabaseAuthGuard),
-    Get('my-posts'),
-    __param(0, GetUser('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], PostsController.prototype, "getMyPosts", null);
 __decorate([
     UseGuards(SupabaseAuthGuard),
     Patch(':id'),

@@ -14,9 +14,9 @@ export declare class PostsController {
             };
         } & {
             id: string;
+            createdAt: Date;
             authorId: string;
             content: string;
-            createdAt: Date;
             postId: string;
         })[];
         author: {
@@ -29,15 +29,15 @@ export declare class PostsController {
         };
     } & {
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     })[]>;
     getMyPosts(userId: string): Promise<({
         author: {
@@ -50,15 +50,15 @@ export declare class PostsController {
         };
     } & {
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     })[]>;
     findOne(id: string): Promise<{
         author: {
@@ -86,21 +86,21 @@ export declare class PostsController {
             };
         } & {
             id: string;
+            createdAt: Date;
             authorId: string;
             content: string;
-            createdAt: Date;
             postId: string;
         })[];
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     }>;
     create(userId: string, createPostDto: CreatePostDto): Promise<{
         author: {
@@ -110,39 +110,39 @@ export declare class PostsController {
         };
     } & {
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     }>;
     update(postId: string, userId: string, updatePostDto: UpdatePostDto): Promise<{
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     }>;
     toggleLike(postId: string, userId: string): Promise<{
         id: string;
-        authorId: string;
+        createdAt: Date;
         title: string;
+        authorId: string;
         content: string;
         authorCategory: string;
         postType: string;
         tags: string[];
         imageUrl: string | null;
         likes: string[];
-        createdAt: Date;
     }>;
     addComment(postId: string, addCommentDto: AddCommentDto): Promise<{
         author: {
@@ -152,9 +152,9 @@ export declare class PostsController {
         };
     } & {
         id: string;
+        createdAt: Date;
         authorId: string;
         content: string;
-        createdAt: Date;
         postId: string;
     }>;
     remove(postId: string, userId: string): Promise<void>;

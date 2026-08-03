@@ -23,9 +23,9 @@ export declare class BookmarksService {
     }[]>;
     addBookmark(userId: string, skillId: string): Promise<{
         id: string;
+        createdAt: Date;
         userId: string;
         skillId: string;
-        createdAt: Date;
     }>;
     removeBookmark(userId: string, skillId: string): Promise<{
         success: boolean;

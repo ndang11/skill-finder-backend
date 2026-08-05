@@ -1,0 +1,7 @@
+{
+  "USER_NOT_FOUND": "User not found",
+  "UNAUTHORIZED": "Unauthorized access",
+  "POST_CREATED": "Post created successfully",
+  "REVIEW_SUBMITTED": "Review submitted successfully",
+  "PROFILE_UPDATED": "Profile updated successfully"
+}

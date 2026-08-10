@@ -16,18 +16,23 @@ export class ProfessionalsService {
   }
 
   async findAll(searchDto: SearchProfessionalDto) {
-    let users = await this.prisma.user.findMany({
-      where: {
-        ...(searchDto.location && { location: { contains: searchDto.location, mode: 'insensitive' } }),
-        ...(searchDto.query && {
-          OR: [
-            { fullName: { contains: searchDto.query, mode: 'insensitive' } },
-            { bio: { contains: searchDto.query, mode: 'insensitive' } },
-            { skills: { some: { title: { contains: searchDto.query, mode: 'insensitive' } } } },
-            { skills: { some: { category: { contains: searchDto.query, mode: 'insensitive' } } } },
-          ],
-        }),
-      },
+    const where: any = {
+      ...(searchDto.location && { location: { contains: searchDto.location, mode: 'insensitive' } }),
+      ...(searchDto.query && {
+        OR: [
+          { fullName: { contains: searchDto.query, mode: 'insensitive' } },
+          { bio: { contains: searchDto.query, mode: 'insensitive' } },
+          { skills: { some: { title: { contains: searchDto.query, mode: 'insensitive' } } } },
+          { skills: { some: { category: { contains: searchDto.query, mode: 'insensitive' } } } },
+        ],
+      }),
+      ...(searchDto.category && searchDto.category.toLowerCase() !== 'all' ? {
+        skills: { some: { category: { equals: searchDto.category, mode: 'insensitive' } } }
+      } : {}),
+    };
+
+    const users = await this.prisma.user.findMany({
+      where,
       include: {
         skills: true,
         reviewsReceived: true,
@@ -35,20 +40,9 @@ export class ProfessionalsService {
       }
     });
 
-    if (searchDto.category && searchDto.category.toLowerCase() !== 'all') {
-      const targetCat = searchDto.category.toLowerCase();
-      users = users.filter(user =>
-        user.skills.some(
-          skill =>
-            skill.category.toLowerCase() === targetCat ||
-            skill.title.toLowerCase().includes(targetCat) ||
-            targetCat.includes(skill.category.toLowerCase()),
-        ),
-      );
-    }
-
+    let filteredUsers = users;
     if (searchDto.minRating !== undefined) {
-      users = users.filter(user => {
+      filteredUsers = users.filter(user => {
         const avg = user.reviewsReceived?.length > 0
           ? user.reviewsReceived.reduce((acc: number, r: any) => acc + r.rating, 0) / user.reviewsReceived.length
           : 0;
@@ -56,7 +50,7 @@ export class ProfessionalsService {
       });
     }
 
-    return users.map(user => this.mapUserToProfessionalProfile(user));
+    return filteredUsers.map(user => this.mapUserToProfessionalProfile(user));
   }
 
   async findOne(id: string) {

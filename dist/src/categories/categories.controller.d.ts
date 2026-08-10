@@ -6,7 +6,10 @@ export declare class CategoriesController {
     findAll(): Promise<{
         id: string;
         name: string;
+        nameFr: string;
         slug: string;
+        sector: string;
+        source: string;
     }[]>;
     create(createCategoryDto: CreateCategoryDto): Promise<void>;
 }

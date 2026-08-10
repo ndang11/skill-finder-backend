@@ -23,6 +23,8 @@ export class ProfessionalsService {
           OR: [
             { fullName: { contains: searchDto.query, mode: 'insensitive' } },
             { bio: { contains: searchDto.query, mode: 'insensitive' } },
+            { skills: { some: { title: { contains: searchDto.query, mode: 'insensitive' } } } },
+            { skills: { some: { category: { contains: searchDto.query, mode: 'insensitive' } } } },
           ],
         }),
       },
@@ -33,9 +35,15 @@ export class ProfessionalsService {
       }
     });
 
-    if (searchDto.category) {
+    if (searchDto.category && searchDto.category.toLowerCase() !== 'all') {
+      const targetCat = searchDto.category.toLowerCase();
       users = users.filter(user =>
-        user.skills.some(skill => skill.category === searchDto.category),
+        user.skills.some(
+          skill =>
+            skill.category.toLowerCase() === targetCat ||
+            skill.title.toLowerCase().includes(targetCat) ||
+            targetCat.includes(skill.category.toLowerCase()),
+        ),
       );
     }
 

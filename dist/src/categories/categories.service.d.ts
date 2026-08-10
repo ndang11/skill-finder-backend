@@ -7,6 +7,9 @@ export declare class CategoriesService {
     findAll(): Promise<{
         id: string;
         name: string;
+        nameFr: string;
         slug: string;
+        sector: string;
+        source: string;
     }[]>;
 }

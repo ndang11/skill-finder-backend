@@ -12,6 +12,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
 import { BookmarksModule } from './bookmarks/bookmarks.module.js';
 import { I18nModule } from './common/i18n/i18n.module.js';
+import { SkillsModule } from './skills/skills.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { I18nModule } from './common/i18n/i18n.module.js';
     PrismaModule,
     CloudinaryModule,
     BookmarksModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

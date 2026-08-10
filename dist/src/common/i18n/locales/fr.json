@@ -1,0 +1,7 @@
+{
+    "USER_NOT_FOUND": "Utilisateur non trouvé",
+    "UNAUTHORIZED": "Accès non autorisé",
+    "POST_CREATED": "Publication créée avec succès",
+    "REVIEW_SUBMITTED": "Avis soumis avec succès",
+    "PROFILE_UPDATED": "Profil mis à jour avec succès"
+}

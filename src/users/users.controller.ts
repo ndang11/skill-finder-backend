@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard';
-import { GetUser } from '../common/decorators/get-user.decorator';
+import { Controller, Get, Post, Body, Patch, Put, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UsersService } from './users.service.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
+import { GetUser } from '../common/decorators/get-user.decorator.js';
 
 @Controller('users')
 export class UsersController {
@@ -23,7 +24,20 @@ export class UsersController {
 
   @UseGuards(SupabaseAuthGuard)
   @Patch('me')
-  updateProfile(@GetUser('id') userId: string, @Body() updateProfileDto: UpdateProfileDto) {
+  updateProfile(
+    @GetUser('id') userId: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
     return this.usersService.update(userId, updateProfileDto);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Put('profile/avatar')
+  @UseInterceptors(FileInterceptor('avatar')) // Listens for file payload key 'avatar'
+  async uploadAvatar(
+    @GetUser('id') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.updateAvatar(userId, file);
   }
 }

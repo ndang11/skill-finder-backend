@@ -1,40 +1,111 @@
-import { Injectable } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
-
-export interface Review {
-  id: string;
-  professionalId: string;
-  customerId: string;
-  rating: number;
-  comment?: string;
-  createdAt: Date;
-}
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { CreateReviewDto } from './dto/create-review.dto.js';
 
 @Injectable()
 export class ReviewsService {
-  private reviews: Review[] = []; // In-memory store
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(customerId: string, createReviewDto: CreateReviewDto): Promise<Review> {
-    const newReview: Review = {
-      id: `review-${Date.now()}`,
-      customerId,
-      ...createReviewDto,
-      createdAt: new Date(),
-    };
-    this.reviews.push(newReview);
-    return newReview;
+  async create(customerId: string, createReviewDto: CreateReviewDto) {
+    const { professionalId, rating, comment, skillId, bookingId } =
+      createReviewDto;
+
+    if (customerId === professionalId) {
+      throw new BadRequestException('You cannot leave a review for yourself');
+    }
+
+    const professionalUser = await this.prisma.user.findUnique({
+      where: { id: professionalId },
+    });
+
+    if (!professionalUser) {
+      throw new NotFoundException('Professional user not found');
+    }
+
+    return this.prisma.review.create({
+      data: {
+        authorId: customerId,
+        receiverId: professionalId,
+        rating: Math.min(5, Math.max(1, Math.round(rating))),
+        comment: comment?.trim() || '',
+        skillId: skillId || null,
+        bookingId: bookingId || null,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        skill: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+          },
+        },
+      },
+    });
   }
 
-  async findByProfessional(professionalId: string): Promise<Review[]> {
-    return this.reviews
-      .filter((r) => r.professionalId === professionalId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  async findByProfessional(professionalId: string) {
+    return this.prisma.review.findMany({
+      where: { receiverId: professionalId },
+      include: {
+        author: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        skill: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findByAuthor(authorId: string) {
+    return this.prisma.review.findMany({
+      where: { authorId },
+      include: {
+        receiver: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        skill: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async getAverageRating(professionalId: string): Promise<number> {
-    const reviews = await this.findByProfessional(professionalId);
-    if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-    return Math.round((total / reviews.length) * 10) / 10;
+    const result = await this.prisma.review.aggregate({
+      where: { receiverId: professionalId },
+      _avg: { rating: true },
+    });
+    return result._avg.rating ? Math.round(result._avg.rating * 10) / 10 : 0;
   }
 }

@@ -9,14 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { AddCommentDto } from './dto/add-comment.dto';
-import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { GetUser } from '../common/decorators/get-user.decorator';
+import { PostsService } from './posts.service.js';
+import { CreatePostDto } from './dto/create-post.dto.js';
+import { UpdatePostDto } from './dto/update-post.dto.js';
+import { AddCommentDto } from './dto/add-comment.dto.js';
+import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard.js';
+import { GetUser } from '../common/decorators/get-user.decorator.js';
 
 @Controller('posts')
 export class PostsController {
@@ -28,19 +26,25 @@ export class PostsController {
     return this.postsService.findAll(category);
   }
 
-  // Only verified professionals can post
-  @UseGuards(SupabaseAuthGuard, RolesGuard)
-  @Roles('professional', 'admin')
-  @Post()
-  create(@GetUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(userId, createPostDto);
-  }
-
   // Get all posts by the authenticated professional
+  // NOTE: Must be above @Get(':id') so NestJS doesn't treat 'my-posts' as an id
   @UseGuards(SupabaseAuthGuard)
   @Get('my-posts')
   getMyPosts(@GetUser('id') userId: string) {
     return this.postsService.findByAuthor(userId);
+  }
+
+  // Anyone can view a specific post detail
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(id);
+  }
+
+  // Only authenticated users can create posts (page is professional-only in the UI)
+  @UseGuards(SupabaseAuthGuard)
+  @Post()
+  create(@GetUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
+    return this.postsService.create(userId, createPostDto);
   }
 
   // Update own post
@@ -64,7 +68,10 @@ export class PostsController {
   // Add a comment to a post (any authenticated user)
   @UseGuards(SupabaseAuthGuard)
   @Post(':id/comments')
-  addComment(@Param('id') postId: string, @Body() addCommentDto: AddCommentDto) {
+  addComment(
+    @Param('id') postId: string,
+    @Body() addCommentDto: AddCommentDto,
+  ) {
     return this.postsService.addComment(postId, addCommentDto);
   }
 

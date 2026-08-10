@@ -1,0 +1,47 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { IsString, IsOptional, IsArray } from 'class-validator';
+export class CreatePostDto {
+    title;
+    content;
+    authorCategory;
+    postType;
+    tags;
+    imageUrl;
+}
+__decorate([
+    IsString(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "title", void 0);
+__decorate([
+    IsString(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "content", void 0);
+__decorate([
+    IsString(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "authorCategory", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "postType", void 0);
+__decorate([
+    IsArray(),
+    IsString({ each: true }),
+    IsOptional(),
+    __metadata("design:type", Array)
+], CreatePostDto.prototype, "tags", void 0);
+__decorate([
+    IsString(),
+    IsOptional(),
+    __metadata("design:type", String)
+], CreatePostDto.prototype, "imageUrl", void 0);
+//# sourceMappingURL=create-post.dto.js.map
